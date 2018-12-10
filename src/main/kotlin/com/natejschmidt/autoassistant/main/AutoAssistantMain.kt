@@ -14,6 +14,17 @@ import java.awt.MouseInfo
 
 class AutomatedProcessView : View("Create Process") {
     val actionList: MutableList<Action> by param()
+
+    override fun onDock() {
+        println("Calling onDock for AutomatedProcessView")
+        super.onDock()
+    }
+
+    override fun onUndock() {
+        println("Calling onUndock for AutomatedProcessView")
+        super.onUndock()
+    }
+
     override val root = borderpane {
         left = vbox {
             val mutableListOfActionTypes = mutableListOf<ActionType>()
@@ -50,12 +61,14 @@ class AutomatedProcessView : View("Create Process") {
                 } else {
                     println("ERROR - checkbox selection was null!")
                 }
-                println("left size ${left.getChildList()?.size}")
-                left.getChildList()?.forEach {
-                    println(it::class)
-                }
+//                println("left size ${left.getChildList()?.size}")
+//                left.getChildList()?.forEach {
+//                    println(it::class)
+//                }
             }
         }
+        println("left = $left")
+        println("parent = $parent")
     }
 }
 
@@ -106,30 +119,27 @@ class MouseKeyCaptureTestView : View("Mouse and Key Capture Test") {
 
 class MainView : View() {
     override val root = borderpane {
-        top {
-            primaryStage.width = 600.0
-            primaryStage.height = 800.0
-            menubar {
-                menu("File") {
-                    menuitem("New Process") {
-                        //                        replaceWith<AutomatedProcessView>()
-                        replaceWith(find<AutomatedProcessView>(mapOf(AutomatedProcessView::actionList to mutableListOf<Action>())))
-                    }
-                    menuitem("Test click listener") {
-                        replaceWith<MouseKeyCaptureTestView>()
-                    }
-                    separator()
-                    menuitem("Quit") {
-                        Platform.exit()
-                    }
+        primaryStage.width = 600.0
+        primaryStage.height = 800.0
+        top = menubar {
+            menu("File") {
+                menuitem("New Process") {
+                    //                        replaceWith<AutomatedProcessView>()
+                    replaceWith(find<AutomatedProcessView>(mapOf(AutomatedProcessView::actionList to mutableListOf<Action>())))
+                }
+                menuitem("Test click listener") {
+                    replaceWith<MouseKeyCaptureTestView>()
+                }
+                separator()
+                menuitem("Quit") {
+                    Platform.exit()
                 }
             }
         }
     }
 }
 
-class AutoAssistantApp : App(MainView::class)
-{
+class AutoAssistantApp : App(MainView::class) {
     init {
         Platform.setImplicitExit(false)
     }
