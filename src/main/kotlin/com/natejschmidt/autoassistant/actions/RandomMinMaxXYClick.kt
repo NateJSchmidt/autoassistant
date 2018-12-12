@@ -39,23 +39,16 @@ class CreateRandomMinMaxXYClickView : Fragment() {
 
     //view stuff
     override val root = form {
-        form {
-            fieldset("Click form") {
-                button("Create action") {
-                    action {
-//                        openInternalWindow(
-//                                find<CaptureKeyPressView>(mapOf(CaptureKeyPressView::actionList to actionList)),
-//                                owner = parent)
-                        replaceWith(find<CaptureKeyPressView>(mapOf(CaptureKeyPressView::actionList to actionList)))
-                    }
+        fieldset {
+            button("Create action") {
+                action {
+                    // when the create button is clicked switch the entire window to be the key press capture window
+                    find<AutomatedProcessView>().replaceWith(
+                            find<CaptureKeyPressView>(mapOf(CaptureKeyPressView::actionList to actionList)))
                 }
             }
         }
     }
-
-//    fun switchStuff() {
-//        root.parent.replaceWith(find<CaptureKeyPressView>(mapOf(CaptureKeyPressView::actionList to actionList)))
-//    }
 }
 
 class CaptureKeyPressView : View() {
@@ -87,28 +80,38 @@ class CaptureKeyPressView : View() {
                 click2Y = MouseInfo.getPointerInfo().location.y
                 secondClickRecord.value = "($click2X, $click2Y)"
 
-                //update the model with the new action
-//                val index = actionList.size
-//                val randomMinMaxXYClickModel = RandomMinMaxXYClickModel(index, click1X, click2X, click1Y, click2Y)
-//                actionList.add(RandomMinMaxXYClickController(randomMinMaxXYClickModel))
-                switchViewToCaptureKeyPressView()
+                // go to the confirmation window
+                replaceWith(find<ConfirmKeysPressed>(mapOf(
+                        ConfirmKeysPressed::actionList to actionList,
+                        ConfirmKeysPressed::click1X to click1X,
+                        ConfirmKeysPressed::click1Y to click1Y,
+                        ConfirmKeysPressed::click2X to click2X,
+                        ConfirmKeysPressed::click2Y to click2Y
+                )))
 
-//                replaceWith(find<AutomatedProcessView>(mapOf(AutomatedProcessView::actionList to actionList)))
             }
             else -> println("Oh dear, it didn't get removed")
         }
         clickCounter++
     }
 
-    private fun switchViewToCaptureKeyPressView() {
-        replaceWith(find<ConfirmKeysPressed>(mapOf(
-                ConfirmKeysPressed::actionList to actionList,
-                ConfirmKeysPressed::click1X to click1X,
-                ConfirmKeysPressed::click1Y to click1Y,
-                ConfirmKeysPressed::click2X to click2X,
-                ConfirmKeysPressed::click2Y to click2Y,
-                ConfirmKeysPressed::keyEventHandler to keyEventHandler
-        )))
+    override fun onDock() {
+        super.onDock()
+        primaryStage.addEventHandler(KeyEvent.KEY_TYPED, keyEventHandler)
+        println("adding key event handler to the primary stage")
+        firstClickRecord.value = "waiting for button click"
+        secondClickRecord.value = "waiting for button click"
+        clickCounter = 0
+        click1X = -1
+        click1Y = -1
+        click2X = -1
+        click2Y = -1
+    }
+
+    override fun onUndock() {
+        super.onUndock()
+        primaryStage.removeEventHandler(KeyEvent.KEY_TYPED, keyEventHandler)
+        println("removing key event handler from the primary stage")
     }
 
     override val root = vbox {
@@ -124,21 +127,17 @@ class CaptureKeyPressView : View() {
             label("Second key click: ")
             label(secondClickRecord)
         }
-        primaryStage.addEventHandler(KeyEvent.KEY_TYPED, keyEventHandler)
     }
 }
 
 class ConfirmKeysPressed : View() {
     val actionList: MutableList<Action> by param()
-    val keyEventHandler: EventHandler<KeyEvent> by param()
     val click1X: Int by param()
     val click1Y: Int by param()
     val click2X: Int by param()
     val click2Y: Int by param()
 
     override val root = vbox {
-        // remove the event handler from the previous view
-        primaryStage.removeEventHandler(KeyEvent.KEY_TYPED, keyEventHandler)
 
         label {
             text = "Confirm locations of keys pressed"
@@ -149,15 +148,23 @@ class ConfirmKeysPressed : View() {
         hbox {
             button("Confirm") {
                 action {
+                    // area confirmed, store the event and head back to the main window for creating the process
                     val index = actionList.size
                     val randomMinMaxXYClickModel = RandomMinMaxXYClickModel(index, click1X, click2X, click1Y, click2Y)
                     actionList.add(RandomMinMaxXYClickController(randomMinMaxXYClickModel))
                     replaceWith(find<AutomatedProcessView>(mapOf(AutomatedProcessView::actionList to actionList)))
                 }
             }
+            button("Redo click area") {
+                action {
+                    // area was not confirmed, head back to the capture key press view
+                    replaceWith(find<CaptureKeyPressView>(mapOf(CaptureKeyPressView::actionList to actionList)))
+                }
+            }
             button("Cancel") {
                 action {
-
+                    // area was not confirmed, head back to the main window for creating the process
+                    replaceWith(find<AutomatedProcessView>(mapOf(AutomatedProcessView::actionList to actionList)))
                 }
             }
         }

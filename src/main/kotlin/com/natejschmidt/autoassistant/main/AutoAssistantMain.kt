@@ -2,6 +2,7 @@ package com.natejschmidt.autoassistant.main
 
 import com.natejschmidt.autoassistant.actions.Action
 import com.natejschmidt.autoassistant.actions.ActionType
+import com.natejschmidt.autoassistant.actions.CreateRandomMinMaxWaitView
 import com.natejschmidt.autoassistant.actions.CreateRandomMinMaxXYClickView
 import javafx.application.Platform
 import javafx.beans.property.SimpleObjectProperty
@@ -16,13 +17,8 @@ class AutomatedProcessView : View("Create Process") {
     val actionList: MutableList<Action> by param()
 
     override fun onDock() {
-        println("Calling onDock for AutomatedProcessView")
         super.onDock()
-    }
-
-    override fun onUndock() {
-        println("Calling onUndock for AutomatedProcessView")
-        super.onUndock()
+        println("ActionList size is ${actionList.size}")
     }
 
     override val root = borderpane {
@@ -42,29 +38,19 @@ class AutomatedProcessView : View("Create Process") {
                 if (it?.name != null) {
                     val selected = ActionType.valueOf(it.name)
                     when (selected) {
+                        // TODO - there is a bug here when switching back and forth...not sure why...
                         ActionType.RANDOM_MIN_MAX_X_Y_CLICK -> {
                             this += find<CreateRandomMinMaxXYClickView>(
                                     mapOf(CreateRandomMinMaxXYClickView::actionList to actionList))
                         }
                         ActionType.RANDOM_MIN_MAX_WAIT -> {
-                            form {
-                                fieldset("Wait form") {
-                                    button("Wait button") {
-                                        action {
-                                            println("Wait button clicked")
-                                        }
-                                    }
-                                }
-                            }
+                            this += find<CreateRandomMinMaxWaitView>(
+                                    mapOf(CreateRandomMinMaxWaitView::actionList to actionList))
                         }
                     }
                 } else {
                     println("ERROR - checkbox selection was null!")
                 }
-//                println("left size ${left.getChildList()?.size}")
-//                left.getChildList()?.forEach {
-//                    println(it::class)
-//                }
             }
         }
         println("left = $left")
@@ -141,7 +127,7 @@ class MainView : View() {
 
 class AutoAssistantApp : App(MainView::class) {
     init {
-        Platform.setImplicitExit(false)
+//        Platform.setImplicitExit(false)
     }
 }
 
