@@ -16,7 +16,7 @@
 *.nar
 *.ear
 *.zip
-*.tar.gz
+#*.tar.gz
 *.rar
 
 # IDE Files
