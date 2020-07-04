@@ -23,7 +23,7 @@
         <tornadofx.version>1.7.17</tornadofx.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlinx.serialization.runtime.version>0.9.1</kotlinx.serialization.runtime.version>
-        <jackson.version>2.9.7</jackson.version>
+        <jackson.version>2.9.10.5</jackson.version>
 
         <main.class>com.natejschmidt.autoassistant.main.AutoAssistantMainKt</main.class>
     </properties>
