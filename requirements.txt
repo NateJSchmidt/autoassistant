@@ -1,2 +1,4 @@
 wheel
 pynput
+pyinstaller
+PySide2
