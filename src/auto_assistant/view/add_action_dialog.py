@@ -12,6 +12,7 @@ class AddActionDialog(QtWidgets.QDialog):
 
         button_grid = QtWidgets.QGridLayout()
         self.__ok_button = QtWidgets.QPushButton('Ok')
+        self.__ok_button.setEnabled(False)
         self.__cancel_button = QtWidgets.QPushButton('Cancel')
         button_grid.addWidget(self.__cancel_button, 0, 0)
         button_grid.addWidget(self.__ok_button, 0, 1)
@@ -27,8 +28,8 @@ class AddActionDialog(QtWidgets.QDialog):
         input_grid.addWidget(self.__x_value, 0, 1)
         input_grid.addWidget(y_label, 0, 2)
         input_grid.addWidget(self.__y_value, 0, 3)
-        get_click_button = QtWidgets.QPushButton('Get click')
-        input_grid.addWidget(get_click_button, 1, 0, 1, -1)
+        self.__get_click_button = QtWidgets.QPushButton('Get click')
+        input_grid.addWidget(self.__get_click_button, 1, 0, 1, -1)
 
         my_layout.addLayout(input_grid, 0, 0)
         my_layout.addLayout(button_grid, 1, 0)
@@ -37,11 +38,12 @@ class AddActionDialog(QtWidgets.QDialog):
         self.__mouse_listener = mouse.Listener(on_click=self.__on_click)
 
         # hook up the button to get the click
-        get_click_button.clicked.connect(self.__get_click)
+        self.__get_click_button.clicked.connect(self.__get_click)
 
     def __toggle_buttons_to(self, enabled: bool):
         self.__ok_button.setEnabled(enabled)
         self.__cancel_button.setEnabled(enabled)
+        self.__get_click_button.setEnabled(enabled)
 
     def __get_click(self):
         self.__mouse_listener.start()
@@ -63,9 +65,7 @@ class AddActionDialog(QtWidgets.QDialog):
 
     def accept(self):
         super().accept()
-        print('Accepting')
         self.__result = actions.ClickAction(int(self.__x_value.text()), int(self.__y_value.text()))
 
     def reject(self):
         super().reject()
-        print('Rejecting')

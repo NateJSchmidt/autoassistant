@@ -7,7 +7,7 @@ from auto_assistant.view import action_list_widgit
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self):
         super(MainWindow, self).__init__()
         self.__configure_menu_bar()
         self.__configure_layout()
@@ -46,10 +46,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def closeEvent(self, event: QtGui.QCloseEvent):
         print(f'Closing the window due to event: {event}')
-
-    def some_event(self):
-        print('some_event happened')
-        self.closeEvent()
 
 
 def main():
