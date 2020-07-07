@@ -4,50 +4,34 @@ import argparse
 import logging
 import sys
 
-from pynput import mouse
+from auto_assistant.view.main_window import MainWindow
 
-exit_flag = False
+from PySide2 import QtWidgets
+
 log = logging.getLogger(__name__)
 
 
-def on_click(x: int, y: int, button: mouse.Button, pressed) -> bool:
-    log.info(f'x is {type(x)}, y is {type(y)}, button is {type(button)}, pressed is {type(pressed)}')
-    if pressed:
-        log.info(f'Mouse was pressed at ({x}, {y}) with button {button}')
-    else:
-        log.info(f'Mouse was released at ({x}, {y}) with button {button}')
-
-    if exit_flag:
-        return False
-    else:
-        return True
-
-
-def display_option_menu():
-    print('Please enter a command')
-    print('[c] Create a new macro')
-    print('[x] Quit')
-
-
-def display_create_options():
-    print('Please pick one of the following types of steps')
-
-
 def main():
-    global exit_flag
-    log.info('Hello world')
-    # listener = mouse.Listener(on_click=on_click)
-    # listener.start()
-    while not exit_flag:
-        display_option_menu()
-        user_input = input()
-        print(f'You entered: {user_input}')
-        if 'x' == user_input.lower():
-            exit_flag = True
-        elif 'c' == user_input.lower():
-            display_create_options()
+    app = QtWidgets.QApplication(sys.argv)
+    mw = MainWindow()
+    mw.show()
+    return app.exec_()
 
-    print('leaving main')
+
+class FilterOutWarnAndHigher(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> int:
+        if record.levelno >= logging.WARNING:
+            return 0
+        else:
+            return 1
+
+
+class FilterOutLessThanWarn(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> int:
+        if record.levelno < logging.WARNING:
+            return 0
+        else:
+            return 1
 
 
 if __name__ == '__main__':
@@ -55,11 +39,20 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--debug', action='store_true', help='Enable debug mode (turn on console logging)')
     args = vars(parser.parse_args())
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter(fmt='%(asctime)s - %(module)s.%(funcName)s:%(lineno)d - [%(levelname)s]: %(message)s')
     if args['debug']:
-        handler = logging.StreamHandler(sys.stdout)
+        logger.setLevel(logging.NOTSET)
+        handler_stdout = logging.StreamHandler(sys.stdout)
+        handler_stdout.addFilter(FilterOutWarnAndHigher())
+        handler_stdout.setFormatter(formatter)
+        handler_stderr = logging.StreamHandler(sys.stderr)
+        handler_stderr.addFilter(FilterOutLessThanWarn())
+        handler_stderr.setFormatter(formatter)
+        logger.addHandler(handler_stderr)
+        logger.addHandler(handler_stdout)
     else:
-        handler = logging.FileHandler('autoassistant.log')
-    logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+        handler = logging.FileHandler('autoassistant.log', mode='w')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
     main()
-    print('leaving program')
