@@ -30,28 +30,11 @@ class AddActionDialog(QtWidgets.QDialog):
 
         # The default type of grid will be one for a ClickAction
         self.__input_grid = self.__generate_grid_layout_for_click_action()
-        # x_label = QtWidgets.QLabel('x: ')
-        # x_label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        # self.__x_value = QtWidgets.QLabel('1')
-        # y_label = QtWidgets.QLabel('y: ')
-        # y_label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        # self.__y_value = QtWidgets.QLabel('1')
-        # self.__input_grid.addWidget(x_label, 0, 0)
-        # self.__input_grid.addWidget(self.__x_value, 0, 1)
-        # self.__input_grid.addWidget(y_label, 0, 2)
-        # self.__input_grid.addWidget(self.__y_value, 0, 3)
-        # self.__get_click_button = QtWidgets.QPushButton('Get click')
-        # self.__input_grid.addWidget(self.__get_click_button, 1, 0, 1, -1)
 
         self.__my_layout.addWidget(pick_action_combo_box, 0, 0)
         self.__my_layout.addLayout(self.__input_grid, 1, 0)
         self.__my_layout.addLayout(button_grid, 2, 0)
         self.setLayout(self.__my_layout)
-
-        self.__mouse_listener = mouse.Listener(on_click=self.__on_click)
-
-        # hook up the button to get the click
-        self.__get_click_button.clicked.connect(self.__get_click)
 
     def __clear_items_in(self, layout: QtWidgets.QLayout):
         while layout.count() > 0:
@@ -151,7 +134,6 @@ class AddActionDialog(QtWidgets.QDialog):
 
     def accept(self):
         super().accept()
-
 
     def reject(self):
         super().reject()

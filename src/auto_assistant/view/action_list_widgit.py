@@ -12,3 +12,6 @@ class ActionListWidgit(QtWidgets.QListWidget):
     def add_action(self, action: Action):
         self.__action_list_model.add_action(action)
         widgit_item = QtWidgets.QListWidgetItem(str(action), self)
+
+    def get_model(self) -> ActionListModel:
+        return self.__action_list_model
